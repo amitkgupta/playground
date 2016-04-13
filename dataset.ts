@@ -151,6 +151,45 @@ export function classifySpiralData(numSamples: number, noise: number):
   return points;
 }
 
+export function classifyTrackerData(numSamples: number, noise: number):
+    Example2D[] {
+  let points: Example2D[] = [];
+  let radius = 5;
+  function getTrackerLabel(p: Point, center: Point) {
+    return (dist(p, center) > (radius * 23 / 24)) ? 1 : -1;
+  }
+
+  // Generate blue outer circle
+  for (let i = 0; i < numSamples / 2; i++) {
+    let r = randUniform(radius, radius * 1.1);
+    let angle = randUniform(0, 2 * Math.PI);
+    let x = r * Math.sin(angle);
+    let y = r * Math.cos(angle);
+    let noiseX = randUniform(-radius, radius) * noise;
+    let noiseY = randUniform(-radius, radius) * noise;
+    let label = getTrackerLabel({x: x + noiseX, y: y + noiseY}, {x: 0, y: 0});
+    points.push({x: x, y: y, label: label});
+  }
+
+  // Generate six orange rotated inner semi-circles
+  for (let i = 0; i < 6; i++) {
+    let centerX = 0.5 * radius * Math.sin(i * Math.PI / 3);
+    let centerY = 0.5 * radius * Math.cos(i * Math.PI / 3);
+
+    for (let j = 0; j < numSamples / 12; j++) {
+      let r = randUniform(0, radius/3);
+      let angle = randUniform(i * Math.PI / 3, Math.PI + i * Math.PI / 3);
+      let x = r * Math.sin(angle) + centerX;
+      let y = r * Math.cos(angle) + centerY;
+      let noiseX = randUniform(-radius, radius) * noise;
+      let noiseY = randUniform(-radius, radius) * noise;
+      let label = getTrackerLabel({x: x + noiseX, y: y + noiseY}, {x: 0, y: 0});
+      points.push({x: x, y: y, label: label});
+    }
+  }
+  return points;
+}
+
 export function classifyCircleData(numSamples: number, noise: number):
     Example2D[] {
   let points: Example2D[] = [];
